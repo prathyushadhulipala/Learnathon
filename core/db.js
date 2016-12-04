@@ -23,11 +23,11 @@ exports.retrieveCardDetails = function(data, callback)
     });
 }
 
-exports.updateCardActivationStatus = function(data, callback)
+exports.updateCardActivationStatus = function(data,img, callback)
 {
     var cardNumber = data;
-    var query = "update card_info set Card_Activation_Status = 'Active' where Card_no = ?";
-    connection.query(query, cardNumber, function(err){
+    var query = "update card_info set Card_Activation_Status = 'Active', Card_Image = ? where Card_no = ?";
+    connection.query(query, [img, cardNumber], function(err){
        if(err) throw err;
         console.log('Activation Completed Successfully');
         closeConnection();

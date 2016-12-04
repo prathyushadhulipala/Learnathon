@@ -18,11 +18,8 @@ var db = require('./core/db.js');
 app.post('/card', function(request, finalResponse){
         console.log("Server.js invoked with card url");
 		console.log("from request",request.body);
-        var url     = request.body.imageURL;
-        var img;
-        req(url, {encoding: 'binary'}, function(error, res, body) 
-        {
-            img = new Buffer(body, 'binary');
+        var img     = request.body.imageURL;
+            
             console.log('image from url',img);
             
             // set content-type header and data as json in args parameter 
@@ -36,7 +33,8 @@ app.post('/card', function(request, finalResponse){
             {
             // parsed response body as js object 
             console.log(data);
-            
+            request.body.cardNumber = data.cardNumber;
+                console.log(request.body);
             db.retrieveCardDetails(request.body, function(err, rows, fields) {
             if(!err)
             {
@@ -44,11 +42,11 @@ app.post('/card', function(request, finalResponse){
                     var partyId = request.body.partyId;
                     console.log(rows);
                     if(partyId == rows[0].Party_Id && rows[0].Notification_Status == 'Not Sent'
-                    && rows[0].Card_Activation_Status == 'Active' && rows[0].Card_Dispatch_Status == 'Dispatched')
+                    && rows[0].Card_Activation_Status == 'Ready' && rows[0].Card_Dispatch_Status == 'Dispatched')
                     {
                     //TODO Integrate activate card service
                    
-                    db.updateCardActivationStatus(rows[0].Card_No, function(err, data)
+                    db.updateCardActivationStatus(rows[0].Card_No,img, function(err, data)
                     {
                         if(err) throw err;
                         finalResponse.send('Card Activation Successful'); 
@@ -62,7 +60,6 @@ app.post('/card', function(request, finalResponse){
     
         });
             });
-        });
 });
 
 app.post('/cards', function(request, response){
